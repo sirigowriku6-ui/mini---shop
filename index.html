@@ -14,7 +14,6 @@ button{padding:8px 12px;border-radius:8px;border:0;background:#0b5cff;color:#fff
 <h1>Mini Shop</h1>
 <p>Demo store - no real payment.</p>
 <div id="products" class="grid"></div>
-<div id="products" class="grid"></div>
 <h2>Cart (<span id="count">0</span> items)</h2>
 <div id="cart"></div>
 <h3>Total: <span id="total">₹0</span></h3>
@@ -36,10 +35,8 @@ const products = [
   {id:7, name:"Backpack", price:899, category:"Bags"},
   {id:8, name:"T-Shirt", price:499, category:"Fashion"},
 ];
-
 let cart = JSON.parse(localStorage.getItem("cart") || "{}");
 const fmt = n => n.toLocaleString("en-IN", {style:"currency", currency:"INR"});
-
 function save(){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
 function addToCart(id){ cart[id] = (cart[id] || 0) + 1; save(); }
 function changeQuantity(id, delta){ cart[id] = (cart[id] || 0) + delta; if(cart[id] <= 0) delete cart[id]; save(); }
@@ -52,58 +49,33 @@ function totals(){
   const delivery = subtotal > 0 && subtotal < 500 ? 40 : 0;
   return { subtotal, delivery, total: subtotal + delivery };
 }
-<script>
-const products = [
-  {id:1, name:"Notebook", price:120, category:"Stationery"},
-  {id:2, name:"Pen Pack", price:80, category:"Stationery"},
-  {id:3, name:"Desk Lamp", price:650, category:"Home"},
-  {id:4, name:"Water Bottle", price:299, category:"Home"},
-  {id:5, name:"Headphones", price:999, category:"Electronics"},
-  {id:6, name:"Mouse Pad", price:149, category:"Electronics"},
-  {id:7, name:"Backpack", price:899, category:"Bags"},
-  {id:8, name:"T-Shirt", price:499, category:"Fashion"},
-];
-
-let cart = JSON.parse(localStorage.getItem("cart") || "{}");
-const fmt = n => n.toLocaleString("en-IN", {style:"currency", currency:"INR"});
-
-function save(){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
-function addToCart(id){ cart[id] = (cart[id] || 0) + 1; save(); }
-function changeQuantity(id, delta){ cart[id] = (cart[id] || 0) + delta; if(cart[id] <= 0) delete cart[id]; save(); }
-function removeItem(id){ delete cart[id]; save(); }
-function totals(){
-  const subtotal = Object.keys(cart).reduce((sum, id) => {
+function render(){
+  const grid = document.getElementById("products");
+  grid.innerHTML = products.map(p => `
+    <div class="card">
+      <h3>${p.name}</h3>
+      <p>${p.category} • ${fmt(p.price)}</p>
+      <button onclick="addToCart(${p.id})">Add to Cart</button>
+    </div>`).join("");
+  const cartEl = document.getElementById("cart");
+  const keys = Object.keys(cart);
+  if(!keys.length){ cartEl.innerHTML = "<p>Cart is empty</p>"; }
+  else {
+    cartEl.innerHTML = keys.map(id => {
+      const p = products.find(x => x.id === Number(id));
+      return `<div class="card"><b>${p.name}</b> - ${fmt(p.price)}<br><button onclick="changeQuantity(${p.id}, -1)">-</button> ${cart[id]} <button onclick="changeQuantity(${p.id}, 1)">+</button> <button onclick="removeItem(${p.id})">Remove</button></div>`;
+    }).join("");
+  }
+  const t = totals();
+  const count = Object.values(cart).reduce((a,b)=>a+b,0);
+  document.getElementById("count").textContent = count;
+  document.getElementById("total").textContent = fmt(t.total);
+  document.getElementById("summary").innerHTML = keys.map(id => {
     const p = products.find(x => x.id === Number(id));
-    return sum + p.price * cart[id];
-  }, 0);
-  const delivery = subtotal > 0 && subtotal < 500 ? 40 : 0;
-  return { subtotal, delivery, total: subtotal + delivery };
+    return `<p>${p.name} x ${cart[id]} = ${fmt(p.price * cart[id])}</p>`;
+  }).join("") + `<p>Subtotal: ${fmt(t.subtotal)}</p><p>Delivery: ${fmt(t.delivery)}</p><p><b>Total: ${fmt(t.total)}</b></p>`;
 }
-<script>
-const products = [
-  {id:1, name:"Notebook", price:120, category:"Stationery"},
-  {id:2, name:"Pen Pack", price:80, category:"Stationery"},
-  {id:3, name:"Desk Lamp", price:650, category:"Home"},
-  {id:4, name:"Water Bottle", price:299, category:"Home"},
-  {id:5, name:"Headphones", price:999, category:"Electronics"},
-  {id:6, name:"Mouse Pad", price:149, category:"Electronics"},
-  {id:7, name:"Backpack", price:899, category:"Bags"},
-  {id:8, name:"T-Shirt", price:499, category:"Fashion"},
-];
-
-let cart = JSON.parse(localStorage.getItem("cart") || "{}");
-const fmt = n => n.toLocaleString("en-IN", {style:"currency", currency:"INR"});
-
-function save(){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
-function addToCart(id){ cart[id] = (cart[id] || 0) + 1; save(); }
-function changeQuantity(id, delta){ cart[id] = (cart[id] || 0) + delta; if(cart[id] <= 0) delete cart[id]; save(); }
-function removeItem(id){ delete cart[id]; save(); }
-function totals(){
-  const subtotal = Object.keys(cart).reduce((sum, id) => {
-    const p = products.find(x => x.id === Number(id));
-    return sum + p.price * cart[id];
-  }, 0);
-  const delivery = subtotal > 0 && subtotal < 500 ? 40 : 0;
-  return { subtotal, delivery, total: subtotal + delivery };
-}  
-  
+render();
+</script>
+</body>
+</html>
