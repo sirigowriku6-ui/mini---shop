@@ -7,12 +7,22 @@
 body{font-family:system-ui;max-width:1000px;margin:auto;padding:16px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px}
-button{padding:8px 12px;border-radius:8px;border:0;background:#0b5cff;color:#fff}
+button{padding:8px 12px;border-radius:8px;border:0;background:#0b5cff;color:#fff;margin:2px}
+input{padding:10px;width:100%;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;box-sizing:border-box}
 </style>
 </head>
 <body>
 <h1>Mini Shop</h1>
 <p>Demo store - no real payment.</p>
+<input id="search" placeholder="Search products..." oninput="render()">
+<div style="margin-bottom:12px">
+<button onclick="setFilter('All')">All</button>
+<button onclick="setFilter('Stationery')">Stationery</button>
+<button onclick="setFilter('Home')">Home</button>
+<button onclick="setFilter('Electronics')">Electronics</button>
+<button onclick="setFilter('Bags')">Bags</button>
+<button onclick="setFilter('Fashion')">Fashion</button>
+</div>
 <div id="products" class="grid"></div>
 <h2>Cart (<span id="count">0</span> items)</h2>
 <div id="cart"></div>
@@ -36,11 +46,13 @@ const products = [
   {id:8, name:"T-Shirt", price:499, category:"Fashion"},
 ];
 let cart = JSON.parse(localStorage.getItem("cart") || "{}");
+let currentFilter = "All";
 const fmt = n => n.toLocaleString("en-IN", {style:"currency", currency:"INR"});
 function save(){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
 function addToCart(id){ cart[id] = (cart[id] || 0) + 1; save(); }
 function changeQuantity(id, delta){ cart[id] = (cart[id] || 0) + delta; if(cart[id] <= 0) delete cart[id]; save(); }
 function removeItem(id){ delete cart[id]; save(); }
+function setFilter(c){ currentFilter = c; render(); }
 function totals(){
   const subtotal = Object.keys(cart).reduce((sum, id) => {
     const p = products.find(x => x.id === Number(id));
@@ -50,13 +62,18 @@ function totals(){
   return { subtotal, delivery, total: subtotal + delivery };
 }
 function render(){
+  const q = (document.getElementById("search").value || "").toLowerCase();
+  const filtered = products.filter(p => (currentFilter === "All" || p.category === currentFilter) && p.name.toLowerCase().includes(q));
   const grid = document.getElementById("products");
-  grid.innerHTML = products.map(p => `
-    <div class="card">
-      <h3>${p.name}</h3>
-      <p>${p.category} • ${fmt(p.price)}</p>
-      <button onclick="addToCart(${p.id})">Add to Cart</button>
-    </div>`).join("");
+  if(!filtered.length){ grid.innerHTML = "<p>No products found</p>"; }
+  else {
+    grid.innerHTML = filtered.map(p => `
+      <div class="card">
+        <h3>${p.name}</h3>
+        <p>${p.category} • ${fmt(p.price)}</p>
+        <button onclick="addToCart(${p.id})">Add to Cart</button>
+      </div>`).join("");
+  }
   const cartEl = document.getElementById("cart");
   const keys = Object.keys(cart);
   if(!keys.length){ cartEl.innerHTML = "<p>Cart is empty</p>"; }
