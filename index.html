@@ -14,3 +14,14 @@ button{padding:8px 12px;border-radius:8px;border:0;background:#0b5cff;color:#fff
 <h1>Mini Shop</h1>
 <p>Demo store - no real payment.</p>
 <div id="products" class="grid"></div>
+<div id="products" class="grid"></div>
+<h2>Cart (<span id="count">0</span> items)</h2>
+<div id="cart"></div>
+<h3>Total: <span id="total">₹0</span></h3>
+<button onclick="checkout.showModal()">Checkout Preview</button>
+<dialog id="checkout">
+<h3>Order Summary</h3>
+<div id="summary"></div>
+<p><b>Demo only - No payment taken</b></p>
+<button onclick="checkout.close()">Close</button>
+</dialog>
