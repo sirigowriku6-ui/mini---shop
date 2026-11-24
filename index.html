@@ -6,7 +6,8 @@
 <style>
 body{font-family:system-ui;max-width:1000px;margin:auto;padding:16px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.card{border:1px solid #ddd;border-radius:12px;padding:12px}
+.card{border:1px solid #ddd;border-radius:12px;padding:12px;background:#fff}
+.card img{width:100%;height:150px;object-fit:cover;border-radius:8px}
 button{padding:8px 12px;border-radius:8px;border:0;background:#0b5cff;color:#fff;margin:2px}
 input{padding:10px;width:100%;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;box-sizing:border-box}
 </style>
@@ -36,63 +37,11 @@ input{padding:10px;width:100%;border-radius:8px;border:1px solid #ddd;margin-bot
 </dialog>
 <script>
 const products = [
-  {id:1, name:"Notebook", price:120, category:"Stationery"},
-  {id:2, name:"Pen Pack", price:80, category:"Stationery"},
-  {id:3, name:"Desk Lamp", price:650, category:"Home"},
-  {id:4, name:"Water Bottle", price:299, category:"Home"},
-  {id:5, name:"Headphones", price:999, category:"Electronics"},
-  {id:6, name:"Mouse Pad", price:149, category:"Electronics"},
-  {id:7, name:"Backpack", price:899, category:"Bags"},
-  {id:8, name:"T-Shirt", price:499, category:"Fashion"},
-];
-let cart = JSON.parse(localStorage.getItem("cart") || "{}");
-let currentFilter = "All";
-const fmt = n => n.toLocaleString("en-IN", {style:"currency", currency:"INR"});
-function save(){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
-function addToCart(id){ cart[id] = (cart[id] || 0) + 1; save(); }
-function changeQuantity(id, delta){ cart[id] = (cart[id] || 0) + delta; if(cart[id] <= 0) delete cart[id]; save(); }
-function removeItem(id){ delete cart[id]; save(); }
-function setFilter(c){ currentFilter = c; render(); }
-function totals(){
-  const subtotal = Object.keys(cart).reduce((sum, id) => {
-    const p = products.find(x => x.id === Number(id));
-    return sum + p.price * cart[id];
-  }, 0);
-  const delivery = subtotal > 0 && subtotal < 500 ? 40 : 0;
-  return { subtotal, delivery, total: subtotal + delivery };
-}
-function render(){
-  const q = (document.getElementById("search").value || "").toLowerCase();
-  const filtered = products.filter(p => (currentFilter === "All" || p.category === currentFilter) && p.name.toLowerCase().includes(q));
-  const grid = document.getElementById("products");
-  if(!filtered.length){ grid.innerHTML = "<p>No products found</p>"; }
-  else {
-    grid.innerHTML = filtered.map(p => `
-      <div class="card">
-        <h3>${p.name}</h3>
-        <p>${p.category} • ${fmt(p.price)}</p>
-        <button onclick="addToCart(${p.id})">Add to Cart</button>
-      </div>`).join("");
-  }
-  const cartEl = document.getElementById("cart");
-  const keys = Object.keys(cart);
-  if(!keys.length){ cartEl.innerHTML = "<p>Cart is empty</p>"; }
-  else {
-    cartEl.innerHTML = keys.map(id => {
-      const p = products.find(x => x.id === Number(id));
-      return `<div class="card"><b>${p.name}</b> - ${fmt(p.price)}<br><button onclick="changeQuantity(${p.id}, -1)">-</button> ${cart[id]} <button onclick="changeQuantity(${p.id}, 1)">+</button> <button onclick="removeItem(${p.id})">Remove</button></div>`;
-    }).join("");
-  }
-  const t = totals();
-  const count = Object.values(cart).reduce((a,b)=>a+b,0);
-  document.getElementById("count").textContent = count;
-  document.getElementById("total").textContent = fmt(t.total);
-  document.getElementById("summary").innerHTML = keys.map(id => {
-    const p = products.find(x => x.id === Number(id));
-    return `<p>${p.name} x ${cart[id]} = ${fmt(p.price * cart[id])}</p>`;
-  }).join("") + `<p>Subtotal: ${fmt(t.subtotal)}</p><p>Delivery: ${fmt(t.delivery)}</p><p><b>Total: ${fmt(t.total)}</b></p>`;
-}
-render();
-</script>
-</body>
-</html>
+  {id:1, name:"Notebook", price:120, category:"Stationery", img:"https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400"},
+  {id:2, name:"Pen Pack", price:80, category:"Stationery", img:"https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=400"},
+  {id:3, name:"Desk Lamp", price:650, category:"Home", img:"https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400"},
+  {id:4, name:"Water Bottle", price:299, category:"Home", img:"https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400"},
+  {id:5, name:"Headphones", price:999, category:"Electronics", img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"},
+  {id:6, name:"Mouse Pad", price:149, category:"Electronics", img:"https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400"},
+  {id:7, name:"Backpack", price:899, category:"Bags", img:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400"},
+  {id:8
